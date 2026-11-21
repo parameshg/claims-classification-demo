@@ -1,2 +1,1 @@
-# claim-classification-demo
-Claim Classification System
+# Claims Classification Agent (Demo)
