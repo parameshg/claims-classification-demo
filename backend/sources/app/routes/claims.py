@@ -8,6 +8,7 @@ from app.models.detail_model import DetailModel
 from app.models.page_model import PageModel
 from app.models.triage_model import TriageModel
 from app.services.claim_service import ClaimService
+from app.services.agent_service import AgentService
 
 router = APIRouter(prefix="/claims", tags=["claims"])
 
@@ -36,3 +37,7 @@ def detail(claim_id: int, link: Link) -> DetailModel:
 @router.get("/{claim_id}/triage", response_model=TriageModel)
 def triage(claim_id: int, link: Link) -> TriageModel:
     return ClaimService(link).triage(claim_id)
+
+@router.post("/{claim_id}/triage", response_model=TriageModel)
+def triage(claim_id: int, link: Link) -> TriageModel:
+    return AgentService(link).triage(claim_id)
