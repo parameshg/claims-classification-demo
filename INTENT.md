@@ -36,14 +36,13 @@ This is a claim agent for motor insurance. The agent reads a new claim, classifi
 
 ## Agent Workflow
 
-An LLM handles steps 1, 2 and 6. Plain code handles steps 3, 4 and 5, so the same input always gives the same answer.
+An LLM handles steps 1 and 2. Plain code handles steps 3, 4 and 5, so the same input always gives the same answer.
 
 1. Intake: extract the structured fields from the FNOL text (incident date, place, parties, injuries, description). The required fields are incident date, claim type, and whether anyone was injured.
 2. Classify: assign claim type and severity with a confidence score.
-3. Policy check: compare the incident date and event to the policy dates, cover type and exclusions to set the coverage outcome.
+3. Policy check: compare the incident date and event to the policy dates and exclusions to set the coverage outcome. The outcome stays empty when the incident date or claim type is missing.
 4. Fraud raise: raise fraud flags for rule matches.
-5. Route: recommend auto-approve, adjuster queue or investigation.
-6. Explain: write a short explanation the adjuster can read in ten seconds.
+5. Route and explain: record the missing required fields, recommend auto-approve, adjuster queue or investigation, and build a short explanation the adjuster can read in ten seconds. The explanation is assembled from the results of steps 2 to 4 and has no LLM call. It states the claim type, severity and confidence, the coverage outcome and reason, any fraud flags, any missing fields, and the route taken.
 
 If a required field is missing or unclear, the agent does not guess. The claim goes to the adjuster queue and the explanation names the missing field.
 
@@ -58,8 +57,9 @@ If a required field is missing or unclear, the agent does not guess. The claim g
 Apply in this order. The first match wins.
 
 1. Any fraud flag: Investigation.
-2. Not covered: Adjuster queue, with the explanation naming the policy exclusion or inactive policy.
-3. Low severity, covered, and confidence above 0.9: Auto-approve.
-4. Everything else: Adjuster queue.
+2. Any missing required field (incident date, claim type, injured): Adjuster queue, with the explanation naming the missing fields.
+3. Not covered: Adjuster queue, with the explanation naming the policy exclusion or inactive policy.
+4. Low severity, covered, and confidence above 0.9: Auto-approve.
+5. Everything else: Adjuster queue.
 
-Missing required fields override rules 2 and 3 and force the adjuster queue. A fraud flag still sends the claim to investigation.
+Missing required fields override the not-covered and auto-approve rules. A fraud flag still sends the claim to investigation.
