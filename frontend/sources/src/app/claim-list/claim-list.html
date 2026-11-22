@@ -1,0 +1,84 @@
+<div class="page !gap-5 !pt-8">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h1 class="page-title">Claims</h1>
+      <p class="page-sub m-0">
+        Agent recommendations for adjusters.
+        @if (list().status === 'loaded') { Showing {{ list().items.length }} of {{ list().total }} claims. }
+      </p>
+    </div>
+    <a routerLink="/claims/new" class="btn btn-primary">
+      New Claim
+    </a>
+  </div>
+
+  <section aria-label="Filters" class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+    <div role="group" aria-label="Route" class="segmented">
+      <button type="button" [attr.aria-pressed]="!filter().route" (click)="setRoute(null)">All</button>
+      @for (r of config.data.routes; track r.value) {
+        <button type="button" [attr.aria-pressed]="filter().route === r.value" [title]="r.hint" (click)="setRoute(r.value)">{{ r.label }}</button>
+      }
+    </div>
+    <label class="inline-flex min-h-8 cursor-pointer items-center gap-2 text-[13px] font-medium text-subtle">
+      <input type="checkbox" class="m-0 h-4 w-4 accent-primary" [checked]="filter().untriaged" (change)="setUntriaged($event)" />
+      Not Triaged
+    </label>
+  </section>
+
+  @if (list().status === 'error' && list().error; as error) {
+    <app-banner [message]="error.message" (retry)="load()" />
+  }
+
+  <section aria-label="Claims table" class="overflow-hidden rounded-md border border-line bg-surface shadow-[0_1px_2px_rgb(16_24_40/0.04)]">
+    <div class="overflow-x-auto">
+      <table class="w-full min-w-[720px] border-collapse text-left text-sm" [attr.aria-busy]="loading()">
+        <caption class="sr-only">Claims with their recommended route</caption>
+        <thead class="border-b border-line bg-head">
+          <tr>
+            <th scope="col" class="th">Claim</th>
+            <th scope="col" class="th">Filed</th>
+            <th scope="col" class="th">Type</th>
+            <th scope="col" class="th">Severity</th>
+            <th scope="col" class="th">Route</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (loading()) {
+            @for (n of skeleton; track n) {
+              <tr aria-hidden="true" class="border-t border-divider first:border-t-0">
+                @for (c of columns; track c) {
+                  <td class="td"><div class="h-4 animate-pulse rounded bg-divider"></div></td>
+                }
+              </tr>
+            }
+          } @else {
+            @for (c of list().items; track c.claim_id) {
+              <tr class="row border-t border-divider transition-colors first:border-t-0 hover:bg-hover">
+                <td class="td"><a [routerLink]="['/claims', c.claim_id]" class="link row-link">Claim #{{ c.claim_id }}</a></td>
+                <td class="td text-body">{{ c.filing_date }}</td>
+                <td class="td" [class.text-muted]="!c.claim_type">{{ c.claim_type ?? 'Not Triaged' }}</td>
+                <td class="td" [class.text-muted]="!c.severity">{{ c.severity | na }}</td>
+                <td class="td"><app-route-badge [route]="c.route" /></td>
+              </tr>
+            } @empty {
+              @if (list().status === 'loaded') {
+                <tr class="border-t border-divider">
+                  <td colspan="5" class="px-5 py-10 text-center text-muted">No claims match these filters.</td>
+                </tr>
+              }
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="flex flex-wrap items-center justify-between gap-3 border-t border-divider px-4 py-2.5">
+      <span class="text-[13px] text-muted">Showing {{ from() }}–{{ to() }} of {{ list().total }} claims</span>
+      <div class="flex gap-2">
+        <button type="button" class="btn btn-quiet" [disabled]="!hasPrev()" (click)="prev()">Previous</button>
+        <button type="button" class="btn btn-quiet" [disabled]="!hasNext()" (click)="next()">Next</button>
+      </div>
+    </div>
+  </section>
+
+  <p class="m-0 text-xs text-muted">The agent recommends a route. It never pays, denies or settles a claim.</p>
+</div>

@@ -1,0 +1,19 @@
+@let icon = size() === 'lg' ? 14 : 12;
+@if (route(); as value) {
+  <span class="badge" [class.lg]="size() === 'lg'" [attr.data-route]="value" [title]="info()?.hint ?? ''">
+    @switch (value) {
+      @case ('Auto-Approve') {
+        <svg aria-hidden="true" [attr.width]="icon" [attr.height]="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+      }
+      @case ('Adjuster-Queue') {
+        <svg aria-hidden="true" [attr.width]="icon" [attr.height]="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6" /></svg>
+      }
+      @case ('Investigation') {
+        <svg aria-hidden="true" [attr.width]="icon" [attr.height]="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6" /><path d="M15 15l6 6" /></svg>
+      }
+    }
+    {{ info()?.label ?? value }}
+  </span>
+} @else {
+  <span class="badge badge-none" [class.lg]="size() === 'lg'">{{ emptyLabel() }}</span>
+}

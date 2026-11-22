@@ -1,0 +1,25 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge.lg {
+  gap: 6px;
+  padding: 5px 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.badge[data-route='Auto-Approve'] { background: #d3f1de; color: #0b4a25; }
+.badge[data-route='Adjuster-Queue'] { background: #ffe8b3; color: #5c3a00; }
+.badge[data-route='Investigation'] { background: #7a1f3d; color: #ffffff; }
+.badge-none { border: 1px dashed #7b8794; color: #3a4756; padding-block: 2px; }
+.badge-none.lg { padding-block: 4px; }
+:host-context(.dark) .badge[data-route='Auto-Approve'] { background: #0f3a22; color: #bff0d0; }
+:host-context(.dark) .badge[data-route='Adjuster-Queue'] { background: #4a3104; color: #fde7b0; }
+:host-context(.dark) .badge[data-route='Investigation'] { background: #f3b5c7; color: #4a0f26; }
+:host-context(.dark) .badge-none { border-color: #94a3b8; color: #cbd5e1; }

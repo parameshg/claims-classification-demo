@@ -1,0 +1,130 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Design tokens from the "Claim Classification App" design canvas. Utilities such as
+   bg-canvas or text-muted read these variables, so the .dark block below re-themes them.
+   "static" emits every variable, so component CSS can use var(--color-*) directly. */
+@theme static {
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --color-canvas: #f4f6f8;
+  --color-surface: #ffffff;
+  --color-ink: #14202b;
+  --color-body: #2a3744;
+  --color-subtle: #3a4756;
+  --color-muted: #4a5866;
+  --color-line: #d5dbe2;
+  --color-divider: #e3e8ed;
+  --color-head: #edf1f5;
+  --color-hover: #f0f4fa;
+  --color-control: #7b8794;
+  --color-chip: #a9b4c0;
+
+  --color-bar: #14202b;
+  --color-bar-active: #2b3b4a;
+
+  --color-primary: #1a55b0;
+  --color-primary-hover: #0f3a80;
+  --color-on-primary: #ffffff;
+
+  --color-ok: #0b4a25;
+
+  --color-warn-bg: #fff6e0;
+  --color-warn-line: #e2b84f;
+  --color-warn-ink: #4a2e00;
+  --color-warn-icon: #5c3a00;
+
+  --color-flag-bg: #f9e7ec;
+  --color-flag-ink: #5e1530;
+
+  --color-danger-bg: #fbe9ec;
+  --color-danger-line: #c2546f;
+  --color-danger-ink: #5e1530;
+  --color-error: #8a1c3a;
+  --color-error-line: #a3254a;
+}
+
+.dark {
+  --color-canvas: #0d141b;
+  --color-surface: #16202a;
+  --color-ink: #e8edf2;
+  --color-body: #d3dbe3;
+  --color-subtle: #bac5d0;
+  --color-muted: #a3b0bd;
+  --color-line: #2c3a48;
+  --color-divider: #243241;
+  --color-head: #1c2834;
+  --color-hover: #1e2c3a;
+  --color-control: #6b7a89;
+  --color-chip: #4a5a6a;
+
+  --color-bar: #0a1016;
+  --color-bar-active: #22303d;
+
+  --color-primary: #8ab4f2;
+  --color-primary-hover: #b3cff7;
+  --color-on-primary: #0b1a30;
+
+  --color-ok: #8fe0ad;
+
+  --color-warn-bg: #3a2a06;
+  --color-warn-line: #8a6a1c;
+  --color-warn-ink: #fde7b0;
+  --color-warn-icon: #fbd47a;
+
+  --color-flag-bg: #43152a;
+  --color-flag-ink: #f8cbd8;
+
+  --color-danger-bg: #3d1322;
+  --color-danger-line: #c2546f;
+  --color-danger-ink: #f8cbd8;
+  --color-error: #f59bb4;
+  --color-error-line: #e0708e;
+}
+
+@layer base {
+  html { color-scheme: light; -webkit-font-smoothing: antialiased; }
+  html.dark { color-scheme: dark; }
+  body { @apply m-0 bg-canvas font-sans text-ink antialiased; }
+  :focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
+}
+
+@layer components {
+  .page { @apply mx-auto flex w-full max-w-[1120px] flex-col gap-4 px-6 pt-6 pb-16; }
+  .page-narrow { @apply max-w-[720px]; }
+  .page-title { @apply m-0 text-2xl leading-tight font-semibold tracking-[-0.015em]; }
+  .page-sub { @apply mt-1 text-sm text-muted; }
+
+  .card { @apply rounded-md border border-line bg-surface px-5 py-4 shadow-[0_1px_2px_rgb(16_24_40/0.04)]; }
+  .card-lg { @apply px-6 py-6; }
+  .card-title { @apply m-0 mb-3 text-sm font-semibold; }
+  .eyebrow { @apply m-0 text-xs font-medium tracking-[0.06em] text-muted uppercase; }
+
+  .btn { @apply inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded px-4 text-sm font-medium no-underline transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50; }
+  .btn-lg { @apply px-5; }
+  .btn-primary { @apply border-0 bg-primary text-on-primary shadow-[0_1px_2px_rgb(16_24_40/0.12)] hover:bg-primary-hover; }
+  .btn-outline { @apply border border-line bg-surface text-ink hover:border-control hover:bg-hover; }
+  .btn-quiet { @apply min-h-9 border border-line bg-surface px-3 text-subtle hover:bg-hover; }
+  .btn-danger { @apply border border-danger-line bg-surface text-danger-ink; }
+
+  /* Route filter: one segmented control instead of separate pills. */
+  .segmented { @apply inline-flex gap-0.5 rounded-md border border-line bg-canvas p-0.5; }
+  .segmented button { @apply min-h-8 cursor-pointer rounded border-0 bg-transparent px-3 text-[13px] font-medium text-subtle transition-colors duration-150 hover:text-ink; }
+  .segmented button[aria-pressed='true'] { @apply bg-surface font-semibold text-ink shadow-[0_1px_2px_rgb(16_24_40/0.1)]; }
+
+  .back-link { @apply inline-flex min-h-8 items-center gap-1 self-start text-[13px] font-medium text-muted no-underline transition-colors hover:text-ink; }
+  .link { @apply font-medium text-primary no-underline hover:underline; }
+
+  .facts { @apply m-0 grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2 text-sm; }
+  .facts dt { @apply text-muted; }
+  .facts dd { @apply m-0; }
+
+  .label { @apply text-[13px] font-medium; }
+  .field { @apply min-h-10 w-full rounded border border-control bg-surface px-3 text-sm text-ink transition-shadow focus:shadow-[0_0_0_3px_rgb(26_85_176/0.15)]; }
+  .field[aria-invalid='true'] { @apply border-error-line shadow-[0_0_0_1px_var(--color-error-line)]; }
+  textarea.field { @apply py-2.5 leading-relaxed; resize: vertical; }
+  .help { @apply text-xs text-muted; }
+  .error-text { @apply flex items-center gap-1.5 text-[13px] font-medium text-error; }
+
+  .spinner { @apply inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent; }
+}

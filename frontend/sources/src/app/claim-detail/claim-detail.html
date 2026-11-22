@@ -1,0 +1,225 @@
+@if (invalidId || notFound) {
+  <div class="page">
+    <section class="card card-lg text-center">
+      <h1 class="page-title">Claim not found</h1>
+      <p class="page-sub">That claim does not exist.</p>
+      <a routerLink="/" class="btn btn-primary mt-5">Back to claims</a>
+    </section>
+  </div>
+} @else if (detail().status === 'loading' || detail().status === 'idle') {
+  <div class="page">
+    <div class="flex items-center justify-center gap-3 py-16 text-muted" role="status">
+      <span class="spinner" aria-hidden="true"></span> Loading claim…
+    </div>
+  </div>
+} @else if (detail().status === 'error' && detail().error; as error) {
+  <div class="page">
+    <app-banner [message]="error.message" (retry)="reload()" />
+  </div>
+} @else if (detail().data; as d) {
+  @let t = detail().triage;
+
+  <ng-template #spinnerLabel>
+    <span class="spinner" aria-hidden="true"></span> Running triage…
+  </ng-template>
+
+  <div class="page">
+    <a routerLink="/" class="back-link">
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7" /></svg>
+      All Claims
+    </a>
+
+    <!-- 1. Header -->
+    <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+      <div>
+        <h1 class="page-title">Claim #{{ d.claim.claim_id }}</h1>
+        <p class="page-sub m-0">
+          Filed {{ d.claim.filing_date }}
+          @if (t) { · Triaged {{ t.created_at.slice(0, 10) }} }
+        </p>
+      </div>
+      <app-route-badge [route]="t?.route ?? null" size="lg" emptyLabel="Not Triaged" />
+    </div>
+
+    @if (detail().runError) {
+      <app-banner [message]="runMessage()" (retry)="run()" />
+    }
+
+    @if (t) {
+      <!-- 2. Explanation -->
+      <section aria-labelledby="h-expl" class="card card-lg flex flex-col gap-5">
+        <h2 id="h-expl" class="eyebrow">Agent recommendation</h2>
+        <p class="m-0 max-w-[760px] text-xl leading-[1.5] font-medium tracking-[-0.01em]">{{ t.explanation }}</p>
+        <dl class="m-0 grid grid-cols-1 gap-x-6 gap-y-4 border-t border-divider pt-5 sm:grid-cols-3">
+          <div><dt class="term">Claim type</dt><dd class="metric">{{ t.claim_type | na }}</dd></div>
+          <div><dt class="term">Severity</dt><dd class="metric">{{ t.severity | na }}</dd></div>
+          <div>
+            <dt class="term">Confidence</dt>
+            <dd class="metric">{{ t.confidence | pct }}</dd>
+            @if (lowCovered()) {
+              <dd class="m-0 mt-1 text-xs text-muted">Auto-approve needs more than 90%</dd>
+            }
+          </div>
+        </dl>
+      </section>
+
+      <!-- 3. Missing fields -->
+      @if (t.missing_fields.length > 0) {
+        <section aria-labelledby="h-miss" class="flex items-start gap-3.5 rounded-md border border-warn-line bg-warn-bg px-6 py-5 text-warn-ink">
+          <svg aria-hidden="true" class="mt-0.5 shrink-0 text-warn-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z" /><path d="M12 10v5M12 18v.5" /></svg>
+          <div>
+            <h2 id="h-miss" class="m-0 text-sm font-semibold">Missing fields</h2>
+            <p class="mt-1 mb-2 text-sm">The agent did not guess these. Check the original FNOL text.</p>
+            <ul class="m-0 list-disc pl-5 text-sm leading-relaxed">
+              @for (f of t.missing_fields; track f) { <li>{{ f }}</li> }
+            </ul>
+          </div>
+        </section>
+      }
+
+      <!-- 4. Fraud flags -->
+      @if (t.fraud_flags.length > 0) {
+        <section aria-labelledby="h-fraud" class="card">
+          <h2 id="h-fraud" class="card-title">Fraud flags</h2>
+          <ul class="m-0 flex list-none flex-col gap-2.5 p-0">
+            @for (f of t.fraud_flags; track f) {
+              <li class="flex items-center gap-2.5 rounded bg-flag-bg px-3 py-2 text-sm text-flag-ink">
+                <svg aria-hidden="true" class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h13l-3 4 3 4H5" /></svg>
+                {{ config.flag(f) }}
+              </li>
+            }
+          </ul>
+          <p class="mt-3 mb-0 text-xs text-muted">A flag is a signal for closer scrutiny, not a finding of fraud.</p>
+        </section>
+      }
+
+      <div class="flex flex-wrap items-stretch gap-5">
+        <!-- 5. Coverage -->
+        <section aria-labelledby="h-cov" class="card min-w-0 flex-[1_1_480px]">
+          <h2 id="h-cov" class="card-title">Coverage</h2>
+          <p class="mt-0 mb-4 flex items-center gap-2 text-base font-semibold">
+            @if (t.coverage_outcome === 'Covered') {
+              <svg aria-hidden="true" class="text-ok" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+            } @else if (t.coverage_outcome === 'Not covered') {
+              <svg aria-hidden="true" class="text-error" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+            }
+            {{ t.coverage_outcome | na }}
+          </p>
+          @if (t.coverage_outcome === 'Not covered') {
+            <p class="-mt-2 mb-4 text-sm"><span class="text-muted">Reason:</span> {{ t.coverage_reason | na }}</p>
+          }
+          <ng-container *ngTemplateOutlet="policy" />
+        </section>
+
+        <!-- 6. Extracted details -->
+        <section aria-labelledby="h-ext" class="card min-w-0 flex-[1_1_480px]">
+          <h2 id="h-ext" class="card-title">Extracted details</h2>
+          <dl class="facts">
+            <dt>Incident date</dt><dd [class.text-muted]="!t.incident_date">{{ t.incident_date | na }}</dd>
+            <dt>Place</dt><dd [class.text-muted]="!t.incident_place">{{ t.incident_place | na }}</dd>
+            <dt>Parties</dt><dd [class.text-muted]="!t.parties">{{ t.parties | na }}</dd>
+            <dt>Injured</dt><dd [class.text-muted]="t.injured === null">{{ t.injured | yesno }}</dd>
+            <dt>Description</dt><dd [class.text-muted]="!t.description">{{ t.description | na }}</dd>
+          </dl>
+        </section>
+      </div>
+
+      <!-- 7. Original FNOL -->
+      <ng-container *ngTemplateOutlet="fnol" />
+
+      <!-- 8. History -->
+      <section aria-labelledby="h-hist" class="card">
+        <h2 id="h-hist" class="card-title">Claim history</h2>
+        <ng-container *ngTemplateOutlet="history" />
+      </section>
+
+      <!-- 9. Actions -->
+      <section aria-label="Actions" class="card flex flex-wrap items-center gap-4">
+        @if (confirming()) {
+          <div role="alertdialog" aria-labelledby="confirm-t" class="flex flex-wrap items-center gap-3">
+            <p id="confirm-t" class="m-0 text-sm font-medium">This replaces the current triage result.</p>
+            <button type="button" class="btn btn-primary" (click)="run()">Replace result</button>
+            <button type="button" class="btn btn-outline" (click)="cancelRerun()">Cancel</button>
+          </div>
+        } @else {
+          <button type="button" class="btn btn-outline" [disabled]="detail().running" (click)="askRerun()">
+            @if (detail().running) { <ng-container *ngTemplateOutlet="spinnerLabel" /> } @else { Re-run triage }
+          </button>
+          <p class="m-0 text-sm text-subtle">Re-running replaces the current triage result. You will be asked to confirm.</p>
+        }
+      </section>
+    } @else {
+      <!-- Not triaged: run triage in place of sections 2 to 6 -->
+      <section aria-labelledby="h-run" class="card card-lg flex flex-wrap items-center justify-between gap-5">
+        <div class="max-w-[640px] flex-[1_1_420px]">
+          <h2 id="h-run" class="m-0 text-lg font-semibold tracking-[-0.01em]">This claim has not been triaged</h2>
+          <p class="mt-1.5 mb-0 text-sm leading-relaxed text-muted">The agent reads the FNOL text, checks the policy and claim history, and recommends a route. This can take several seconds.</p>
+        </div>
+        <button type="button" class="btn btn-primary btn-lg" [disabled]="detail().running" (click)="run()">
+          @if (detail().running) {
+            <ng-container *ngTemplateOutlet="spinnerLabel" />
+          } @else {
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4l13 8-13 8z" /></svg>
+            Run Triage
+          }
+        </button>
+      </section>
+
+      <ng-container *ngTemplateOutlet="fnol" />
+
+      <div class="flex flex-wrap items-stretch gap-5">
+        <section aria-labelledby="h-pol" class="card min-w-0 flex-[1_1_480px]">
+          <h2 id="h-pol" class="card-title">Policy</h2>
+          <ng-container *ngTemplateOutlet="policy" />
+        </section>
+        <section aria-labelledby="h-hist" class="card min-w-0 flex-[1_1_480px]">
+          <h2 id="h-hist" class="card-title">Claim history</h2>
+          <ng-container *ngTemplateOutlet="history" />
+        </section>
+      </div>
+    }
+  </div>
+
+  <ng-template #fnol>
+    <section aria-labelledby="h-fnol" class="card">
+      <h2 id="h-fnol" class="card-title">Original FNOL text</h2>
+      <blockquote class="m-0 max-w-[760px] rounded border-l-2 border-line bg-canvas px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap">{{ d.claim.fnol_text }}</blockquote>
+      <p class="mt-3 mb-0 text-sm text-subtle"><span class="text-muted">Police Report Number:</span> {{ d.claim.police_report_number ?? 'None' }}</p>
+    </section>
+  </ng-template>
+
+  <ng-template #policy>
+    <dl class="facts">
+      <dt>Cover type</dt><dd class="first-letter:uppercase">{{ d.policy.cover_type }}</dd>
+      <dt>Excess</dt><dd>{{ d.policy.excess }}</dd>
+      <dt>Start date</dt><dd>{{ d.policy.start_date }}</dd>
+      <dt>End date</dt><dd>{{ d.policy.end_date }}</dd>
+      <dt>Exclusions</dt><dd>{{ d.policy.exclusions.length > 0 ? d.policy.exclusions.join(', ') : 'None' }}</dd>
+    </dl>
+  </ng-template>
+
+  <ng-template #history>
+    @if (d.history.length > 0) {
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[360px] border-collapse text-left text-sm">
+          <thead>
+            <tr class="border-b border-line">
+              <th scope="col" class="py-2 text-[11px] font-semibold tracking-[0.06em] text-muted uppercase">Filed</th>
+              <th scope="col" class="py-2 text-[11px] font-semibold tracking-[0.06em] text-muted uppercase">Type</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (h of d.history; track h.history_id; let last = $last) {
+              <tr [class.border-b]="!last" class="border-divider">
+                <td class="py-2">{{ h.filing_date }}</td>
+                <td class="py-2">{{ h.claim_type }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <p class="m-0 text-sm text-muted">No prior claims.</p>
+    }
+  </ng-template>
+}

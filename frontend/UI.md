@@ -33,7 +33,7 @@ Controls:
 - Route filter (All, Auto-Approve, Adjuster-Queue, Investigation), sent as `route`.
 - "Not triaged" toggle, sent as `triaged=false`.
 - Paging with 50 rows per page, using `limit` and `offset`. Shows `total`.
-- "New claim" button.
+- "New Claim" button.
 
 Empty state: "No claims match these filters."
 
@@ -106,7 +106,7 @@ Shown as a percentage to the nearest whole number (0.82 as 82%). A note beside i
 
 ## Behaviour Rules
 
-- Null fields show "Not available", never a blank or a guess.
+- Null fields show "Not Available", never a blank or a guess.
 - The UI does not recompute coverage, flags or routes. It displays what the API returns.
 - All text is rendered as plain text, including `fnol_text` and `explanation`.
 - Dates display as stored (`YYYY-MM-DD`).

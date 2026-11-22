@@ -1,0 +1,76 @@
+<ng-template #errIcon>
+  <svg aria-hidden="true" class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9" /><path d="M12 7.5v5.5M12 16.5v.5" /></svg>
+</ng-template>
+
+<div class="page page-narrow">
+  <a routerLink="/" class="back-link">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7" /></svg>
+    All Claims
+  </a>
+  <div>
+    <h1 class="page-title">New Claim</h1>
+    <p class="page-sub m-0">Submitting creates the claim and runs triage, then opens the result.</p>
+  </div>
+
+  <form class="card card-lg flex flex-col gap-5" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    @if (create().error; as error) {
+      <app-banner [message]="error.message" [retryable]="false" />
+    }
+
+    <div class="flex flex-col gap-1.5">
+      <label for="customer" class="label">Customer <span class="text-error" aria-hidden="true">*</span></label>
+      <select id="customer" class="field" formControlName="customer_id" required [attr.aria-invalid]="invalid('customer_id')" [attr.aria-describedby]="invalid('customer_id') ? 'customer-err' : null">
+        <option value="">Select a customer</option>
+        @for (c of config.data.customers; track c.customer_id) {
+          <option [value]="c.customer_id">{{ c.full_name }}</option>
+        }
+      </select>
+      @if (invalid('customer_id')) {
+        <span id="customer-err" class="error-text"><ng-container *ngTemplateOutlet="errIcon" />Select a customer.</span>
+      }
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <label for="policy" class="label">Policy <span class="text-error" aria-hidden="true">*</span></label>
+      <select id="policy" class="field" formControlName="policy_id" required [attr.aria-invalid]="invalid('policy_id')" [attr.aria-describedby]="invalid('policy_id') ? 'policy-help policy-err' : 'policy-help'">
+        <option value="">{{ customerChosen() ? 'Select a policy' : 'Choose a customer first' }}</option>
+        @for (p of policies(); track p.policy_id) {
+          <option [value]="p.policy_id">{{ capitalise(p.cover_type) }}, {{ p.start_date }} to {{ p.end_date }}</option>
+        }
+      </select>
+      <span id="policy-help" class="help">Only the chosen customer's policies are listed.</span>
+      @if (invalid('policy_id')) {
+        <span id="policy-err" class="error-text"><ng-container *ngTemplateOutlet="errIcon" />Select a policy.</span>
+      }
+    </div>
+
+    <div class="flex max-w-[260px] flex-col gap-1.5">
+      <label for="filing" class="label">Filing Date <span class="text-error" aria-hidden="true">*</span></label>
+      <input id="filing" type="date" class="field" formControlName="filing_date" required [attr.aria-invalid]="invalid('filing_date')" [attr.aria-describedby]="invalid('filing_date') ? 'filing-err' : null" />
+      @if (invalid('filing_date')) {
+        <span id="filing-err" class="error-text"><ng-container *ngTemplateOutlet="errIcon" />Enter a filing date.</span>
+      }
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <label for="fnol" class="label">FNOL text <span class="text-error" aria-hidden="true">*</span></label>
+      <textarea id="fnol" rows="7" class="field" formControlName="fnol_text" required [attr.aria-invalid]="invalid('fnol_text')" [attr.aria-describedby]="invalid('fnol_text') ? 'fnol-help fnol-err' : 'fnol-help'"></textarea>
+      <span id="fnol-help" class="help">The customer's own account of the incident, as first reported.</span>
+      @if (invalid('fnol_text')) {
+        <span id="fnol-err" class="error-text"><ng-container *ngTemplateOutlet="errIcon" />FNOL text must not be empty.</span>
+      }
+    </div>
+
+    <div class="flex max-w-[360px] flex-col gap-1.5">
+      <label for="police" class="label">Police Report Number <span class="font-normal text-muted">(optional)</span></label>
+      <input id="police" type="text" class="field" formControlName="police_report_number" />
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3 border-t border-divider pt-2">
+      <button type="submit" class="btn btn-primary btn-lg mt-3" [disabled]="create().saving">
+        @if (create().saving) { <span class="spinner" aria-hidden="true"></span> Creating and running triage… } @else { Submit and run triage }
+      </button>
+      <a routerLink="/" class="btn btn-outline mt-3">Cancel</a>
+    </div>
+  </form>
+</div>
