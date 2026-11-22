@@ -104,3 +104,34 @@ def test_detail_unknown_claim_is_404(client):
     res = client.get(f"{BASE}/99999")
     assert res.status_code == 404
     assert res.json() == {"error": {"code": "claim_not_found", "message": "Claim 99999 does not exist."}}
+
+
+def test_triage_get_returns_stored_result(client):
+    import os
+    import sqlite3
+
+    cid = client.post(BASE, json=NEW).json()["claim_id"]
+    link = sqlite3.connect(os.environ["CLAIMS_DB"])
+    link.execute(
+        "INSERT INTO triage_results (claim_id, injured, missing_fields, claim_type, route, explanation) "
+        "VALUES (?, 0, '[\"incident_date\"]', 'Theft', 'Investigation', 'flagged')",
+        (cid,),
+    )
+    link.execute(
+        "INSERT INTO triage_fraud_flags (claim_id, flag) VALUES (?, 'THEFT_NO_POLICE_REPORT')",
+        (cid,),
+    )
+    link.commit()
+    link.close()
+    body = client.get(f"{BASE}/{cid}/triage").json()
+    assert body["claim_id"] == cid
+    assert body["injured"] is False
+    assert body["missing_fields"] == ["incident_date"]
+    assert body["fraud_flags"] == ["THEFT_NO_POLICE_REPORT"]
+    assert body["route"] == "Investigation"
+
+
+def test_triage_get_404s(client):
+    cid = client.post(BASE, json=NEW).json()["claim_id"]
+    assert client.get(f"{BASE}/{cid}/triage").status_code == 404
+    assert client.get(f"{BASE}/999999/triage").status_code == 404

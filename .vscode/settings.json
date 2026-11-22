@@ -10,5 +10,6 @@
         "**/.venv": true,
         "**/__pycache__": true,
         "**/__init__.py": true,
-    }
+    },
+    "robotcode.disableExtension": true
 }

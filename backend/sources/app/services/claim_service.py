@@ -4,6 +4,8 @@ from app.models.claim_model import ClaimModel
 from app.models.claim_new_model import ClaimNewModel
 from app.models.detail_model import DetailModel
 from app.models.page_model import PageModel
+from app.models.triage_model import TriageModel
+from app.repositories.triage_repository import TriageRepository
 from app.repositories.claim_repository import ClaimRepository
 from app.repositories.customer_repository import CustomerRepository
 from app.repositories.history_repository import HistoryRepository
@@ -15,6 +17,7 @@ class ClaimService:
         self.customers = CustomerRepository(link)
         self.policies = PolicyRepository(link)
         self.history = HistoryRepository(link)
+        self.triages = TriageRepository(link)
 
     def submit(self, new: ClaimNewModel) -> ClaimModel:
         if not self.customers.exists(new.customer_id):
@@ -35,6 +38,14 @@ class ClaimService:
     ) -> PageModel:
         items, total = self.claims.page(route, triaged, limit, offset)
         return PageModel(items=items, total=total)
+
+    def triage(self, claim_id: int) -> TriageModel:
+        if self.claims.get(claim_id) is None:
+            raise Fault(404, "claim_not_found", f"Claim {claim_id} does not exist.")
+        result = self.triages.get(claim_id)
+        if result is None:
+            raise Fault(404, "claim_not_found", f"Claim {claim_id} has not been triaged.")
+        return result
 
     def detail(self, claim_id: int) -> DetailModel:
         claim = self.claims.get(claim_id)
