@@ -20,6 +20,10 @@ The API is decision support only. It has no endpoint to pay, deny or settle a cl
 | GET | `/claims/{claim_id}` | Get a claim with its policy and claim history. |
 | POST | `/claims/{claim_id}/triage` | Run the agent. Replaces any existing triage result. |
 | GET | `/claims/{claim_id}/triage` | Get the stored triage result. |
+| GET | `/customers` | List customers. |
+| GET | `/customers/{customer_id}` | Get one customer. `404 customer_not_found` if missing. |
+| GET | `/policies` | List policies. Optional `customer_id` filter. |
+| GET | `/policies/{policy_id}` | Get one policy. `404 policy_not_found` if missing. |
 
 ### POST /claims
 
@@ -113,6 +117,14 @@ If the LLM call fails, the endpoint returns `502` and leaves any existing result
 Response `200`: the stored [Triage result](#triage-result). Returns `404` if the claim has not been triaged.
 
 ## Objects
+
+### Customer
+
+`{ "customer_id": 1, "full_name": "..." }`
+
+### Policy
+
+The policy summary shown under `GET /claims/{claim_id}`, plus `customer_id`.
 
 ### Claim
 

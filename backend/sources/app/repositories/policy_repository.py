@@ -1,6 +1,7 @@
 import json
 import sqlite3
 from app.models.policy_model import PolicyModel
+from app.models.policy_record_model import PolicyRecordModel
 
 class PolicyRepository:
     def __init__(self, link: sqlite3.Connection) -> None:
@@ -24,3 +25,31 @@ class PolicyRepository:
         data = dict(row)
         data["exclusions"] = json.loads(data["exclusions"])
         return PolicyModel(**data)
+
+    def record(self, policy_id: int) -> PolicyRecordModel | None:
+        rows = self.all(policy_id=policy_id)
+        return rows[0] if rows else None
+
+    def all(
+        self, customer_id: int | None = None, policy_id: int | None = None
+    ) -> list[PolicyRecordModel]:
+        sql = (
+            "SELECT policy_id, customer_id, cover_type, excess, start_date, end_date, "
+            "exclusions FROM policies"
+        )
+        clauses, args = [], []
+        if customer_id is not None:
+            clauses.append("customer_id = ?")
+            args.append(customer_id)
+        if policy_id is not None:
+            clauses.append("policy_id = ?")
+            args.append(policy_id)
+        if clauses:
+            sql += " WHERE " + " AND ".join(clauses)
+        sql += " ORDER BY policy_id"
+        out = []
+        for row in self.link.execute(sql, args).fetchall():
+            data = dict(row)
+            data["exclusions"] = json.loads(data["exclusions"])
+            out.append(PolicyRecordModel(**data))
+        return out
