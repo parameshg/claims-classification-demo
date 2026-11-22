@@ -1,9 +1,9 @@
+import handlers
 from dotenv import load_dotenv
 from fastapi import FastAPI
-from app import handlers
-from app.routes import claims, customers, policies
+from routes import claims, customers, policies
 
-load_dotenv()
+load_dotenv(override=True)
 app = FastAPI(title="Motor Claims Agent API", version="1.0.0")
 handlers.attach(app)
 

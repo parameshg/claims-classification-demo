@@ -1,6 +1,6 @@
 import json
 import sqlite3
-from app.models.triage_model import TriageModel
+from models.triage_model import TriageModel
 
 COLUMNS = (
     "claim_id, incident_date, incident_place, parties, injured, description, "

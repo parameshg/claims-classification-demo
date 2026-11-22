@@ -1,10 +1,10 @@
 import sqlite3
 from typing import Annotated
 from fastapi import APIRouter, Depends
-from app.db import connection
-from app.fault import Fault
-from app.models.customer_model import CustomerModel
-from app.repositories.customer_repository import CustomerRepository
+from db import connection
+from fault import Fault
+from models.customer_model import CustomerModel
+from repositories.customer_repository import CustomerRepository
 
 router = APIRouter(prefix="/customers", tags=["customers"])
 

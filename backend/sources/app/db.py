@@ -1,6 +1,6 @@
 import sqlite3
 from collections.abc import Iterator
-from app.config import db_path
+from config import db_path
 
 def connection() -> Iterator[sqlite3.Connection]:
     """FastAPI dependency: one connection per request."""

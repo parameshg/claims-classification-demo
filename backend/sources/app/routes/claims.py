@@ -1,14 +1,14 @@
 import sqlite3
 from typing import Annotated, Literal
 from fastapi import APIRouter, Depends, Query
-from app.db import connection
-from app.models.claim_model import ClaimModel
-from app.models.claim_new_model import ClaimNewModel
-from app.models.detail_model import DetailModel
-from app.models.page_model import PageModel
-from app.models.triage_model import TriageModel
-from app.services.claim_service import ClaimService
-from app.services.agent_service import AgentService
+from db import connection
+from models.claim_model import ClaimModel
+from models.claim_new_model import ClaimNewModel
+from models.detail_model import DetailModel
+from models.page_model import PageModel
+from models.triage_model import TriageModel
+from services.claim_service import ClaimService
+from services.agent_service import AgentService
 
 router = APIRouter(prefix="/claims", tags=["claims"])
 

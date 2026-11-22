@@ -51,9 +51,9 @@ OPENROUTER_MODEL=<model id, for example anthropic/claude-sonnet-4.5>
 Optionally set `CLAIMS_DB` to use a database other than `database/claims.db`.
 
 ```
-cd backend
+cd backend/sources/app
 uv sync
-uv run uvicorn app.main:app --reload --app-dir sources
+uv run uvicorn main:app --reload
 ```
 
 The API serves on http://localhost:8000 under `/api/v1`. FastAPI's interactive docs are at `/docs`.

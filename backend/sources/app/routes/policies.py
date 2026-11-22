@@ -1,10 +1,10 @@
 import sqlite3
 from typing import Annotated
 from fastapi import APIRouter, Depends
-from app.db import connection
-from app.fault import Fault
-from app.models.policy_record_model import PolicyRecordModel
-from app.repositories.policy_repository import PolicyRepository
+from db import connection
+from fault import Fault
+from models.policy_record_model import PolicyRecordModel
+from repositories.policy_repository import PolicyRepository
 
 router = APIRouter(prefix="/policies", tags=["policies"])
 

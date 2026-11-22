@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from app.fault import Fault
+from fault import Fault
 
 def body(code: str, message: str) -> dict:
     return {"error": {"code": code, "message": message}}

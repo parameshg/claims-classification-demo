@@ -1,7 +1,7 @@
 import json
 import sqlite3
-from app.models.policy_model import PolicyModel
-from app.models.policy_record_model import PolicyRecordModel
+from models.policy_model import PolicyModel
+from models.policy_record_model import PolicyRecordModel
 
 class PolicyRepository:
     def __init__(self, link: sqlite3.Connection) -> None:

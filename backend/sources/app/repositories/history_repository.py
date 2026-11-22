@@ -1,5 +1,5 @@
 import sqlite3
-from app.models.history_model import HistoryModel
+from models.history_model import HistoryModel
 
 class HistoryRepository:
     def __init__(self, link: sqlite3.Connection) -> None:

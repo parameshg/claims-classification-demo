@@ -23,11 +23,18 @@ A motor-insurance claim triage agent. It is decision support only, so it never p
 
 ## Commands
 
-Backend (run from `backend/`, uses uv):
+Backend (uses uv). Run the server from `backend/sources/app/`, because the app uses flat imports (`import handlers`, `from routes import ...`) and `app/` is the import root:
 
 ```
+cd backend/sources/app
 uv sync
-uv run uvicorn app.main:app --reload --app-dir sources   # serves on :8000
+uv run uvicorn main:app --reload                         # serves on :8000
+```
+
+Run the tests from `backend/`:
+
+```
+cd backend
 uv run pytest                                            # pythonpath=sources, testpaths=tests
 uv run pytest tests/test_claims.py::test_name            # single test
 ```

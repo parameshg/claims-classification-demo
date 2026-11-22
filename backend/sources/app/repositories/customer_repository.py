@@ -1,5 +1,5 @@
 import sqlite3
-from app.models.customer_model import CustomerModel
+from models.customer_model import CustomerModel
 
 class CustomerRepository:
     def __init__(self, link: sqlite3.Connection) -> None:

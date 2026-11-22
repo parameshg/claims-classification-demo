@@ -1,15 +1,15 @@
 import sqlite3
-from app.fault import Fault
-from app.models.claim_model import ClaimModel
-from app.models.claim_new_model import ClaimNewModel
-from app.models.detail_model import DetailModel
-from app.models.page_model import PageModel
-from app.models.triage_model import TriageModel
-from app.repositories.triage_repository import TriageRepository
-from app.repositories.claim_repository import ClaimRepository
-from app.repositories.customer_repository import CustomerRepository
-from app.repositories.history_repository import HistoryRepository
-from app.repositories.policy_repository import PolicyRepository
+from fault import Fault
+from models.claim_model import ClaimModel
+from models.claim_new_model import ClaimNewModel
+from models.detail_model import DetailModel
+from models.page_model import PageModel
+from models.triage_model import TriageModel
+from repositories.triage_repository import TriageRepository
+from repositories.claim_repository import ClaimRepository
+from repositories.customer_repository import CustomerRepository
+from repositories.history_repository import HistoryRepository
+from repositories.policy_repository import PolicyRepository
 
 class ClaimService:
     def __init__(self, link: sqlite3.Connection) -> None:

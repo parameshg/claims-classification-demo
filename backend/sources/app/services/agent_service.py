@@ -3,21 +3,21 @@ import sqlite3
 from datetime import date, datetime, timedelta
 from openai import OpenAI, OpenAIError
 from pydantic import ValidationError
-from app.models.classify_model import ClassifyModel
-from app.models.extract_model import ExtractModel
 from pydantic import BaseModel, Field
 from langgraph.graph import StateGraph, START, END
 from langgraph.graph.state import CompiledStateGraph
-from app.fault import Fault
-from app.models.claim_model import ClaimModel
-from app.models.history_model import HistoryModel
-from app.models.triage_model import TriageModel
-from app.repositories.claim_repository import ClaimRepository
-from app.repositories.customer_repository import CustomerRepository
-from app.repositories.history_repository import HistoryRepository
-from app.repositories.policy_repository import PolicyRepository
-from app.repositories.triage_repository import TriageRepository
-from app.models.policy_model import PolicyModel
+from models.classify_model import ClassifyModel
+from models.extract_model import ExtractModel
+from fault import Fault
+from models.claim_model import ClaimModel
+from models.history_model import HistoryModel
+from models.triage_model import TriageModel
+from repositories.claim_repository import ClaimRepository
+from repositories.customer_repository import CustomerRepository
+from repositories.history_repository import HistoryRepository
+from repositories.policy_repository import PolicyRepository
+from repositories.triage_repository import TriageRepository
+from models.policy_model import PolicyModel
 
 EXTRACT_PROMPT = """You extract facts from a motor insurance customer's FNOL text.
 
@@ -46,7 +46,7 @@ Severity:
 Do not guess. If the text does not make the claim type clear, return claim_type null and severity null.
 Confidence is your certainty from 0 to 1."""
 
-AUTO_APPROVE_CONFIDENCE = 0.9
+AUTO_APPROVE_CONFIDENCE = 0.88
 
 CLAIM_TYPE_EXCLUSIONS = {
     "Collision": [],
@@ -114,7 +114,7 @@ class AgentService:
 
     def extract_facts(self, state: ClaimState):
         try:
-            client = OpenAI(base_url="https://openrouter.ai/api/v1", api_key=os.environ["OPENROUTER_API_KEY"])
+            client = OpenAI(base_url="https://openrouter.ai/api/v1",  api_key=os.environ["OPENROUTER_API_KEY"])
             response = client.chat.completions.create(model=os.environ["OPENROUTER_MODEL"], max_tokens=1024,
             messages=[
                 {"role": "system", "content": EXTRACT_PROMPT},
@@ -133,6 +133,7 @@ class AgentService:
                 raise ValueError("The model did not call the extract tool.")
             result = ExtractModel.model_validate_json(tool_calls[0].function.arguments)
         except (ValidationError, ValueError, IndexError, OpenAIError) as err:
+            print(f"Error extracting facts: {err}")
             raise Fault(502, "llm_failed", "The LLM could not extract facts from the claim.") from err
         return {
             "incident_date": result.incident_date,

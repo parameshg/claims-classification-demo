@@ -1,7 +1,7 @@
 import sqlite3
-from app.models.claim_model import ClaimModel
-from app.models.claim_new_model import ClaimNewModel
-from app.models.item_model import ItemModel
+from models.claim_model import ClaimModel
+from models.claim_new_model import ClaimNewModel
+from models.item_model import ItemModel
 
 COLUMNS = "claim_id, customer_id, policy_id, filing_date, fnol_text, police_report_number"
 
