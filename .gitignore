@@ -425,3 +425,4 @@ FodyWeavers.xsd
 # Official VS Code C# Dev Kit Extension exclusion
 #*.lscache
 docs/.$agent.drawio.bkp
+docs/.$architecture.drawio.bkp
